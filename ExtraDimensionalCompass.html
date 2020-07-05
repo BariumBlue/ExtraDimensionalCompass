@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+  .slidecontainer {
+    width: 100%;
+  }
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 12px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+  .slider:hover {
+    opacity: 1;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #2196F3;
+    cursor: pointer;
+  }
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #4CAF50;
+    cursor: pointer;
+  }
+  /* The container */
+  .container {
+    display: block;
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  /* Hide the browser's default radio button */
+  .container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+  }
+  /* Create a custom radio button */
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    border-radius: 50%;
+  }
+  /* On mouse-over, add a grey background color */
+  .container:hover input ~ .checkmark {
+    background-color: #ccc;
+  }
+  /* When the radio button is checked, add a blue background */
+  .container input:checked ~ .checkmark {
+    background-color: #2196F3;
+  }
+  /* Create the indicator (the dot/circle - hidden when not checked) */
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  /* Show the indicator (dot/circle) when checked */
+  .container input:checked ~ .checkmark:after {
+    display: block;
+  }
+  /* Style the indicator (dot/circle) */
+  .container .checkmark:after {
+   	top: 6px;
+  	left: 6px;
+  	width: 8px;
+  	height: 8px;
+  	background: white;
+    border-radius: 50%;
+
+  }
+  </style>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+  <div class="slidecontainer" style="width:400px; border:1px solid #000000; margin:10px; padding:10px; padding-top:0px;  float:left">
+
+
+    <h1 style="text-align:center; margin:0px;">Extra Dimensional Compass</h1>
+
+    <canvas id="cube_canvas" style="width:400px; height:500px; float:center; border:1px solid #000000;"></canvas>
+
+
+
+    <h3>Orientation Point</h3>
+
+    <!-- <label class="container">Pointer
+      <input type="radio" checked="checked" name="radio" onclick="draw_compass()">
+      <span class="checkmark"></span>
+    </label>
+    <label class="container">Highlight SubCube
+      <input type="radio" name="radio" onclick="draw_compass()">
+      <span class="checkmark"></span>
+    </label>
+    <label class="container">Show Neither
+      <input type="radio" name="radio" onclick="draw_compass()">
+      <span class="checkmark"></span>
+    </label> -->
+
+	<div>
+	    <label class="container" style="border-radius:0%; display:inline" >Show Pointer
+	      <input type="checkbox" checked="checked" style="border-radius:0%" onclick="draw_pointer=!draw_pointer; toggle_visible('point_div'); toggle_visible('PointerButton'); draw_compass()">
+	      <span class="checkmark" style="border-radius:0%" ></span>
+	    </label>
+		<br>
+		<button id="PointerButton" onclick="toggle_pointer_button()" >Change to Red Dot</button>
+	</div>
+
+
+    <div id="point_div">
+      <p style="text-align:left; margin-bottom:0px;"> Collectivist <span style="float:right;"> Individualist </span>  </p>
+      <input type="range" min="0" max="8" value="4" class="slider" id="ind_slider" oninput="pointer_i=value/subdivisions; draw_compass()">
+      <p style="text-align:left; margin-bottom:0px;"> Traditional <span style="float:right;"> Progressive </span>  </p>
+      <input type="range" min="0" max="8" value="4" class="slider" id="pro_slider" oninput="pointer_p=value/subdivisions; draw_compass()">
+      <p style="text-align:left; margin-bottom:0px;"> Authoritarian <span style="float:right;"> Libertarian </span>  </p>
+      <input type="range" min="0" max="8" value="4" class="slider" id="lib_slider" oninput="pointer_l=value/subdivisions; draw_compass()">
+    </div>
+
+
+    <div id="slice_div">
+      <h3>Slice</h3>
+      <p>
+        <label for="amount_i">Collectivism <=> Individualism</label>
+      </p>
+      <div id="slider-range_i"></div>
+
+      <p>
+        <label for="amount_p">Traditionalism <=> Progressivism</label>
+      </p>
+      <div id="slider-range_p"></div>
+
+      <p>
+        <label for="amount_l">Authoritarianism <=> Libertarianism</label>
+      </p>
+      <div id="slider-range_l"></div>
+    </div>
+
+
+    <hr>
+
+    <h3>Options</h3>
+
+    <h4 style="display:inline;">Cube Length Subdivisions:  </h4><span style="display:inline;"><input id="subs_in" style="width:10px;" oninput="on_subdivisions_input()"></input> </span>
+
+
+    <h4>Colors</h4>
+    <label class="container">Single color per box
+      <input type="radio" checked="checked" name="radio" onclick="discrete_colors=true; draw_compass()">
+      <span class="checkmark"></span>
+    </label>
+    <label class="container">Continuous colors
+      <input type="radio" name="radio" onclick="discrete_colors=false; draw_compass()">
+      <span class="checkmark"></span>
+    </label>
+
+    <label id="sublines_box" class="container" style="border-radius:0%" >Show Subdivisions
+      <input type="checkbox" style="border-radius:0%" checked="checked" onclick="draw_lines=!draw_lines; draw_compass()">
+      <span class="checkmark" style="border-radius:0%" ></span>
+    </label>
+    <label id="outline_box" class="container" style="border-radius:0%" >Show Outline
+      <input type="checkbox" style="border-radius:0%" checked="checked" onclick="draw_outline=!draw_outline; draw_compass()">
+      <span class="checkmark" style="border-radius:0%" ></span>
+    </label>
+    <label id="shadows_box" class="container" style="border-radius:0%" >Show Shadows
+      <input type="checkbox" style="border-radius:0%" checked="checked" onclick="draw_shadows=!draw_shadows; draw_compass()">
+      <span class="checkmark" style="border-radius:0%" ></span>
+    </label>
+
+
+  </div>
+
+
+  <img style="float:top" src="CompassRose2.png" alt="Political Orientation">
+
+
+  <script>
+"use strict";
+
+
+//////////////////////////////////////////////////////////////////////////
+/////// COLOR STUFFS ///////
+
+//ind, pro, and lib go from 0 (their opposite) to 1.0 (their epitomy)
+function get_color(ind, pro, lib){
+  //give the inputs more of a sigmoid curve
+  ind = output_curve(ind)
+  pro = output_curve(pro)
+  lib = output_curve(lib)
+
+  var brightness = 180 - lib*180
+  var r = brightness + (-40 + ind*80) + ind*pro*80
+  var g =  brightness + (-20 + pro*96)
+  var b =  brightness + ( 116 - pro*96)
+
+  return [r,g,b]
+}
+
+function output_curve(inval){
+  // return inval
+  return 0.5- 0.5*Math.cos(inval*Math.PI)
+}
+
+
+
+
+//////////////////////////////////////////////////////////////////////////
+/////// DRAWING  STUFFS ///////
+
+//stuff to edit
+
+
+
+
+var side_length = 175
+var cx = 200 //center x
+var cy = 250 //center y
+var cw = 400 //canvas width
+var ch = 400 //canvas height
+
+var lwl = 1	//line width light
+var lwh = 2	//line width heavy
+var lw3 = 3	//line width 3
+var linecolor = "#222"
+var outlinecolor = "#AAA"
+var shadowcolor = "#CCC"
+
+
+
+//vars for slices
+var subdivisions = 9.0
+var i_s=0 //Individualist start
+var i_e=1 //ind. end
+var p_s=0//progressive start
+var p_e=1 //progressive end
+var l_s=0 //Libertarian start
+var l_e=1 //Libertarian end
+
+var i_subd_val = 4
+var p_subd_val = 4
+var l_subd_val = 4
+
+
+var pointer_i = i_subd_val / subdivisions
+var pointer_p = p_subd_val / subdivisions
+var pointer_l = l_subd_val / subdivisions
+
+var draw_pointer = true
+
+var discrete_colors = true
+var draw_lines = true
+var draw_outline = true
+var draw_shadows = true
+var cutout_pointer = true
+
+
+function draw_compass(){
+  var side_length_in_fives = side_length/5.0 //the length is in fives so we can exploit the 30,60,90/3,4,5 triangle
+  var c = document.getElementById("cube_canvas")
+  var ctx = c.getContext("2d");
+
+
+  // // refresh the canvas with white
+  var rgb_color = "#FFF"
+  ctx.fillStyle = rgb_color;
+  ctx.fillRect(0,0,500,500);
+
+
+  if (draw_shadows){
+    ctx.fillStyle = shadowcolor
+
+    ctx.beginPath();
+    var np = get_point_on_compass( i_s, p_s, 1); ctx.moveTo(np[0], np[1]);
+    var np = get_point_on_compass( i_s, p_e, 1); ctx.lineTo(np[0], np[1]);
+    var np = get_point_on_compass( i_e, p_e, 1); ctx.lineTo(np[0], np[1]);
+    var np = get_point_on_compass( i_e, p_s, 1); ctx.lineTo(np[0], np[1]);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    var np = get_point_on_compass( i_s, 1, l_s); ctx.moveTo(np[0], np[1]);
+    var np = get_point_on_compass( i_s, 1, l_e); ctx.lineTo(np[0], np[1]);
+    var np = get_point_on_compass( i_e, 1, l_e); ctx.lineTo(np[0], np[1]);
+    var np = get_point_on_compass( i_e, 1, l_s); ctx.lineTo(np[0], np[1]);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    var np = get_point_on_compass( 1, p_s, l_s); ctx.moveTo(np[0], np[1]);
+    var np = get_point_on_compass( 1, p_s, l_e); ctx.lineTo(np[0], np[1]);
+    var np = get_point_on_compass( 1, p_e, l_e); ctx.lineTo(np[0], np[1]);
+    var np = get_point_on_compass( 1, p_e, l_s); ctx.lineTo(np[0], np[1]);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // // Draw background outline
+  if (draw_outline){
+    ctx.strokeStyle = outlinecolor
+    var np //newpoint
+    //Draw outside perimeter
+    ctx.lineWidth =lwh
+    ctx.beginPath()
+    np = get_point_on_compass(1, 1, 0); ctx.moveTo(np[0], np[1]);
+    np = get_point_on_compass(0, 1, 0); ctx.lineTo(np[0], np[1]);
+    np = get_point_on_compass(0, 1, 1); ctx.lineTo(np[0], np[1]);
+    np = get_point_on_compass(0, 0, 1); ctx.lineTo(np[0], np[1]);
+    np = get_point_on_compass(1, 0, 1); ctx.lineTo(np[0], np[1]);
+    np = get_point_on_compass(1, 0, 0); ctx.lineTo(np[0], np[1]);
+    np = get_point_on_compass(1, 1, 0); ctx.lineTo(np[0], np[1]);
+    ctx.stroke();
+    //draw far edges
+    ctx.beginPath()
+    np = get_point_on_compass(  1,   1,   1); ctx.moveTo(np[0], np[1]);
+    np = get_point_on_compass(  0,   1,   1); ctx.lineTo(np[0], np[1]);
+    np = get_point_on_compass(  1,   1,   1); ctx.moveTo(np[0], np[1]);
+    np = get_point_on_compass(  1,   0,   1); ctx.lineTo(np[0], np[1]);
+    np = get_point_on_compass(  1,   1,   1); ctx.moveTo(np[0], np[1]);
+    np = get_point_on_compass(  1,   1,   0); ctx.lineTo(np[0], np[1]);
+    ctx.stroke();
+  }
+
+
+  // // COLOR THE CUBE // //
+
+  new_draw(ctx)
+  var division_minmaxes = [i_s,i_e,p_s,p_e,l_s,l_e]
+  for (var xi=cx-side_length; xi<=cx+side_length; xi++){
+    for (var yi=cy-side_length*2; yi<=cy+side_length*2; yi++){
+      var orientation=undefined
+
+      // orientation = point_to_compass_orientation(xi, yi, [0,1,0,1,0,1])
+      if (orientation==undefined){ orientation = leftside_point_to_compass_orientation(xi, yi, i_s,division_minmaxes)}
+      if (orientation==undefined){ orientation = rightside_point_to_compass_orientation(xi, yi, p_s ,division_minmaxes)}
+      if (orientation==undefined){ orientation = topside_point_to_compass_orientation(xi, yi,l_s,division_minmaxes)}
+      if (orientation==undefined){ continue }
+
+      if (discrete_colors){
+        orientation[0] = Math.floor(orientation[0] * subdivisions)/subdivisions
+        orientation[1] = Math.floor(orientation[1] * subdivisions)/subdivisions
+        orientation[2] = Math.floor(orientation[2] * subdivisions)/subdivisions
+
+        orientation[0] += orientation[0]/subdivisions
+        orientation[1] += orientation[1]/subdivisions
+        orientation[2] += orientation[2]/subdivisions
+      }
+
+      var pc = get_color(orientation[0],orientation[1],orientation[2]) //point color
+
+      var rgb_color = [pc[0],pc[1],pc[2]]
+	  push_pixel(xi,yi,rgb_color)
+    }
+  }
+  finalize_image(ctx);
+
+
+   // // DRAW OUTLINES // //
+   var start_sub_i = Math.floor(i_s * subdivisions)
+   var end_sub_i = Math.floor(i_e * subdivisions)
+   var start_sub_p = Math.floor(p_s * subdivisions)
+   var end_sub_p = Math.floor(p_e * subdivisions)
+   var start_sub_l = Math.floor(l_s * subdivisions)
+   var end_sub_l = Math.floor(l_e * subdivisions)
+
+   ////draw subdivisions
+   if (draw_lines){
+     ctx.strokeStyle = linecolor
+
+     //Draw lines denoting subdivisions of i
+     for (var i_iter=start_sub_i; i_iter<=end_sub_i; i_iter++){
+       if (i_iter==start_sub_i || i_iter==end_sub_i){ctx.lineWidth = lwh}
+       else {ctx.lineWidth = lwl}
+       var cur = i_iter/subdivisions
+
+       ctx.beginPath()
+       var np = get_point_on_compass(cur,  start_sub_p/subdivisions,  start_sub_l/subdivisions); ctx.moveTo(np[0], np[1]);
+       var np = get_point_on_compass(cur,    end_sub_p/subdivisions,  start_sub_l/subdivisions); ctx.lineTo(np[0], np[1]);
+       var np = get_point_on_compass(cur,  start_sub_p/subdivisions,  start_sub_l/subdivisions); ctx.moveTo(np[0], np[1]);
+       var np = get_point_on_compass(cur,  start_sub_p/subdivisions,    end_sub_l/subdivisions); ctx.lineTo(np[0], np[1]);
+       ctx.stroke();
+
+     }
+     //Draw lines denoting subdivisions of p
+     for (var p_iter=start_sub_p; p_iter<=end_sub_p; p_iter++){
+       if (p_iter==start_sub_p || p_iter==end_sub_p){ctx.lineWidth = lwh}
+       else {ctx.lineWidth = lwl}
+       var cur = p_iter/subdivisions
+
+       ctx.beginPath()
+       var np = get_point_on_compass(start_sub_i/subdivisions, cur,  start_sub_l/subdivisions); ctx.moveTo(np[0], np[1]);
+       var np = get_point_on_compass(  end_sub_i/subdivisions, cur,  start_sub_l/subdivisions); ctx.lineTo(np[0], np[1]);
+       var np = get_point_on_compass(start_sub_i/subdivisions, cur,  start_sub_l/subdivisions); ctx.moveTo(np[0], np[1]);
+       var np = get_point_on_compass(start_sub_i/subdivisions, cur,    end_sub_l/subdivisions); ctx.lineTo(np[0], np[1]);
+       ctx.stroke();
+     }
+     //Draw lines denoting subdivisions of l
+     for (var l_iter=start_sub_l; l_iter<=end_sub_l; l_iter++){
+       if (l_iter==start_sub_l || l_iter==end_sub_l){ctx.lineWidth = lwh}
+       else {ctx.lineWidth = lwl}
+       var cur = l_iter/subdivisions
+
+       ctx.beginPath()
+       var np = get_point_on_compass(start_sub_i/subdivisions, start_sub_p/subdivisions, cur); ctx.moveTo(np[0], np[1]);
+       var np = get_point_on_compass(  end_sub_i/subdivisions, start_sub_p/subdivisions, cur); ctx.lineTo(np[0], np[1]);
+       var np = get_point_on_compass(start_sub_i/subdivisions, start_sub_p/subdivisions, cur); ctx.moveTo(np[0], np[1]);
+       var np = get_point_on_compass(start_sub_i/subdivisions,   end_sub_p/subdivisions, cur); ctx.lineTo(np[0], np[1]);
+       ctx.stroke();
+     }
+   }
+
+
+	if (draw_pointer && !cutout_pointer){
+		draw_red_pointer(ctx)
+	}
+	//////////////////////////////////////////////////////////////////////////////
+	///////////// draw the cutout on top of the standard cube /////////////
+
+	if (draw_pointer && cutout_pointer){
+     pointer_i = Math.max(0, Math.min(1-1/subdivisions,Math.round(pointer_i*subdivisions)/subdivisions))
+     pointer_p = Math.round(pointer_p*subdivisions)/subdivisions
+     pointer_l = Math.round(pointer_l*subdivisions)/subdivisions
+     var innercube_p = [pointer_i,pointer_i+1/subdivisions,pointer_p,pointer_p+1/subdivisions,pointer_l,pointer_l+1/subdivisions]
+     var cutout_p = [i_s,innercube_p[1], p_s,innercube_p[3],l_s,innercube_p[5]]
+     var outercube_p = [i_s,i_e,p_s,p_e,l_s,l_e]
+
+     //color the cutout
+	 new_draw(ctx)
+     for (var xi=cx-side_length; xi<=cx+side_length; xi++){
+       for (var yi=cy-side_length*2; yi<=cy+side_length*2; yi++){
+         var orientation=undefined
+
+         // test if on innercube
+         if (orientation==undefined){ orientation = leftside_point_to_compass_orientation( xi, yi, innercube_p[0],innercube_p)}
+         if (orientation==undefined){ orientation = rightside_point_to_compass_orientation(xi, yi, innercube_p[2],innercube_p)}
+         if (orientation==undefined){ orientation = topside_point_to_compass_orientation(  xi, yi, innercube_p[4],innercube_p)}
+         // test if on cutout
+         if (orientation==undefined){ orientation = leftside_point_to_compass_orientation( xi, yi, cutout_p[1],cutout_p)}
+         if (orientation==undefined){ orientation = rightside_point_to_compass_orientation(xi, yi, cutout_p[3],cutout_p)}
+         if (orientation==undefined){ orientation = topside_point_to_compass_orientation(  xi, yi, cutout_p[5],cutout_p)}
+         // test if on outercube
+         // if (orientation==undefined){ orientation = leftside_point_to_compass_orientation( xi, yi, outercube_p[0],outercube_p)}
+         // if (orientation==undefined){ orientation = rightside_point_to_compass_orientation(xi, yi, outercube_p[2],outercube_p)}
+         // if (orientation==undefined){ orientation = topside_point_to_compass_orientation(  xi, yi, outercube_p[4],outercube_p)}
+
+         if (orientation==undefined){ continue }
+
+         if (discrete_colors){
+           orientation[0] = Math.floor(orientation[0] * subdivisions)/subdivisions
+           orientation[1] = Math.floor(orientation[1] * subdivisions)/subdivisions
+           orientation[2] = Math.floor(orientation[2] * subdivisions)/subdivisions
+
+           orientation[0] += orientation[0]/subdivisions
+           orientation[1] += orientation[1]/subdivisions
+           orientation[2] += orientation[2]/subdivisions
+         }
+
+         var pc = get_color(orientation[0],orientation[1],orientation[2]) //point color
+
+         var rgb_color = [pc[0],pc[1],pc[2]]
+		 push_pixel(xi, yi, rgb_color)
+       }
+	}
+	finalize_image(ctx)
+
+      //outline the cutout
+      if (draw_lines){
+        ctx.lineWidth = lwl
+        ctx.strokeStyle = linecolor
+         //////// Draw lines denoting subdivisions of i //////
+         for (var i_iter=Math.round(cutout_p[0]*subdivisions); i_iter<=Math.round(cutout_p[1]*subdivisions); i_iter++){
+           var i_pos = i_iter/subdivisions
+           //draw the outline on the inner cube
+           if (i_pos >= innercube_p[0]-.001 && i_pos <= innercube_p[1]+.001){
+            ctx.lineWidth = lwh
+            ctx.beginPath()
+            np = get_point_on_compass(i_pos,  innercube_p[2],  innercube_p[4]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(i_pos,  innercube_p[3],  innercube_p[4]); ctx.lineTo(np[0], np[1]);
+            np = get_point_on_compass(i_pos,  innercube_p[2],  innercube_p[4]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(i_pos,  innercube_p[2],  innercube_p[5]); ctx.lineTo(np[0], np[1]);
+
+            if (i_pos<innercube_p[1]-.001){
+              np = get_point_on_compass(i_pos,  innercube_p[2],  innercube_p[5]); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(i_pos,  innercube_p[3],  innercube_p[5]); ctx.lineTo(np[0], np[1]);
+              np = get_point_on_compass(i_pos,  innercube_p[3],  innercube_p[4]); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(i_pos,  innercube_p[3],  innercube_p[5]); ctx.lineTo(np[0], np[1]);
+            }
+          }
+          ctx.stroke();
+
+          //draw the outline on the cutout
+          ctx.lineWidth = lwl
+          ctx.beginPath()
+          if (i_pos >= innercube_p[1]-.001 && i_pos <= innercube_p[1]+.001){//if the line would intersect the inner cube
+              np = get_point_on_compass(i_pos,  cutout_p[2],  cutout_p[5]); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(i_pos,  innercube_p[2],  cutout_p[5]); ctx.lineTo(np[0], np[1]);
+              np = get_point_on_compass(i_pos,  cutout_p[3],  cutout_p[4]); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(i_pos,  cutout_p[3],  innercube_p[4]); ctx.lineTo(np[0], np[1]);
+          } else { //if the line doesn't intersect the inner cube
+            np = get_point_on_compass(i_pos,  cutout_p[2],  cutout_p[5]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(i_pos,  cutout_p[3],  cutout_p[5]); ctx.lineTo(np[0], np[1]);
+            np = get_point_on_compass(i_pos,  cutout_p[3],  cutout_p[4]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(i_pos,  cutout_p[3],  cutout_p[5]); ctx.lineTo(np[0], np[1]);
+          }
+          ctx.stroke();
+        }
+
+        ////// draw lines denoting subdivisions of p //////
+         for (var p_iter=Math.round(cutout_p[2]*subdivisions); p_iter<=Math.round(cutout_p[3]*subdivisions); p_iter++){
+           var p_pos = p_iter/subdivisions
+           //draw the outline on the inner cube
+           if (p_pos >= innercube_p[2]-.001 && p_pos <= innercube_p[3]+.001){
+            ctx.lineWidth = lwh
+            ctx.beginPath()
+            np = get_point_on_compass(innercube_p[0],  p_pos,  innercube_p[4]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(innercube_p[1],  p_pos,  innercube_p[4]); ctx.lineTo(np[0], np[1]);
+            np = get_point_on_compass(innercube_p[0],  p_pos,  innercube_p[4]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(innercube_p[0],  p_pos,  innercube_p[5]); ctx.lineTo(np[0], np[1]);
+
+            if (p_pos<innercube_p[2]-.001){
+              np = get_point_on_compass(innercube_p[0],  p_pos,  innercube_p[5]); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(innercube_p[1],  p_pos,  innercube_p[5]); ctx.lineTo(np[0], np[1]);
+              np = get_point_on_compass(innercube_p[0],  p_pos,  innercube_p[4]); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(innercube_p[0],  p_pos,  innercube_p[5]); ctx.lineTo(np[0], np[1]);
+            }
+          }
+          ctx.stroke();
+
+          //draw the outline on the cutout
+          if (p_pos >= innercube_p[3]-.001 && p_pos <= innercube_p[3]+.001){//if the line would intersect the inner cube
+            ctx.lineWidth = lw3
+            ctx.beginPath()
+            np = get_point_on_compass(cutout_p[0], p_pos, cutout_p[5]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(innercube_p[0], p_pos, cutout_p[5]); ctx.lineTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], p_pos, cutout_p[4]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], p_pos, innercube_p[4]); ctx.lineTo(np[0], np[1]);
+          } else { //if the line doesn't intersect the inner cube
+            ctx.lineWidth = lwl
+            ctx.beginPath()
+            np = get_point_on_compass(cutout_p[0], p_pos, cutout_p[5]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], p_pos, cutout_p[5]); ctx.lineTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], p_pos, cutout_p[4]); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], p_pos, cutout_p[5]); ctx.lineTo(np[0], np[1]);
+          }
+          ctx.stroke();
+        }
+
+        ////// draw lines denoting subdivisions of l //////
+		for (var l_iter=Math.round(cutout_p[4]*subdivisions); l_iter<=Math.round(cutout_p[5]*subdivisions); l_iter++){
+           var l_pos = l_iter/subdivisions
+           //draw the outline on the inner cube
+           if (l_pos >= innercube_p[4]-.001 && l_pos <= innercube_p[5]+.001){
+            ctx.lineWidth = lwh
+            ctx.beginPath()
+            np = get_point_on_compass(innercube_p[0], innercube_p[2], l_pos); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(innercube_p[1], innercube_p[2], l_pos); ctx.lineTo(np[0], np[1]);
+            np = get_point_on_compass(innercube_p[0], innercube_p[2], l_pos); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(innercube_p[0], innercube_p[3], l_pos); ctx.lineTo(np[0], np[1]);
+
+            if (l_pos<innercube_p[4]-.001){
+              np = get_point_on_compass(innercube_p[0], innercube_p[3], l_pos); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(innercube_p[1], innercube_p[3], l_pos); ctx.lineTo(np[0], np[1]);
+              np = get_point_on_compass(innercube_p[0], innercube_p[2], l_pos); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(innercube_p[0], innercube_p[3], l_pos); ctx.lineTo(np[0], np[1]);
+            }
+          }
+          ctx.stroke();
+
+          //draw the outline on the cutout
+          if (l_pos >= innercube_p[5]-.001 && l_pos <= innercube_p[5]+.001){//if the line would intersect the inner cube
+              ctx.lineWidth = lw3
+              ctx.beginPath()
+              np = get_point_on_compass(cutout_p[0], cutout_p[3], l_pos); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(innercube_p[0], cutout_p[3], l_pos); ctx.lineTo(np[0], np[1]);
+              np = get_point_on_compass(cutout_p[1], cutout_p[2], l_pos); ctx.moveTo(np[0], np[1]);
+              np = get_point_on_compass(cutout_p[1], innercube_p[2], l_pos); ctx.lineTo(np[0], np[1]);
+          } else { //if the line doesn't intersect the inner cube
+            ctx.lineWidth = lwl
+            ctx.beginPath()
+            np = get_point_on_compass(cutout_p[0], cutout_p[3], l_pos); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], cutout_p[3], l_pos); ctx.lineTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], cutout_p[2], l_pos); ctx.moveTo(np[0], np[1]);
+            np = get_point_on_compass(cutout_p[1], cutout_p[3], l_pos); ctx.lineTo(np[0], np[1]);
+          }
+          ctx.stroke();
+        }
+    }
+
+	}
+}
+
+
+var imagedata
+function new_draw(ctx){
+	var c = document.getElementById("cube_canvas")
+	var ctx = c.getContext("2d");
+	// imagedata = ctx.createImageData(400, 500);
+	imagedata = ctx.getImageData(0,0,400, 500);
+}
+
+function push_pixel(px,py,pixel){
+	var curpix = (py*400 + px)*4
+	imagedata.data[curpix]   = pixel[0]
+	imagedata.data[curpix+1] = pixel[1]
+	imagedata.data[curpix+2] = pixel[2]
+	imagedata.data[curpix+3] = 255
+}
+
+function finalize_image(ctx){
+	ctx.putImageData(imagedata,0,0)
+}
+
+
+function color_outline_cutout(ctx, innercube_p){ //inner cube params
+  // var outer_params =
+
+  // // DRAW OUTLINES // //
+  var start_sub_i = Math.floor(i_s * subdivisions)
+  var end_sub_i = Math.floor(i_e * subdivisions)
+  var start_sub_p = Math.floor(p_s * subdivisions)
+  var end_sub_p = Math.floor(p_e * subdivisions)
+  var start_sub_l = Math.floor(l_s * subdivisions)
+  var end_sub_l = Math.floor(l_e * subdivisions)
+
+  var np //new point
+
+
+
+}
+
+
+
+
+function draw_red_pointer(ctx){
+  ctx.fillStyle = 'red';
+  var ds = 5 //dot size
+  var rot = Math.PI*0.03 //rotate the side dots, to try to make them appear slanted
+
+  var ofs = 0.5/subdivisions//offset
+
+  //point on top / i p  surface
+  ctx.beginPath();
+  var np = get_point_on_compass(pointer_i+ofs, pointer_p+ofs, l_s);
+  ctx.ellipse(np[0], np[1], ds, ds*4/5, 0, 0, 2 * Math.PI);
+  ctx.fill();
+
+  //point on right / i l  surface
+  ctx.beginPath();
+  var np = get_point_on_compass(pointer_i+ofs, p_s, pointer_l+ofs);
+  ctx.ellipse(np[0], np[1], ds*3/5, ds, rot, 0, 2 * Math.PI);
+  ctx.fill();
+
+  //point on left / p l  surface
+  ctx.beginPath();
+  var np = get_point_on_compass(i_s, pointer_p+ofs, pointer_l+ofs);
+  ctx.ellipse(np[0], np[1], ds*3/5, ds, -rot, 0, 2 * Math.PI);
+  ctx.fill();
+}
+
+
+//for the given compass reading, return it's 2d location
+function get_point_on_compass(i,p,l){ //args:individualist, progressive, libertarian
+
+  var px = cx + side_length*( i*4/5 - p*4/5)
+  var py = cy + side_length*(-i*3/5 - p*3/5 + l)
+  return [px,py]
+}
+
+//For the given point px, py, return the (surface) political orientation, for i_surface
+//returns [i,p,l]: individualism, progressivism, libertarianism
+function leftside_point_to_compass_orientation(px,py, i_val=0, minmaxes=[0,1,0,1,0,1]){
+  var imin = minmaxes[0]; var imax = minmaxes[1];
+  var pmin = minmaxes[2]; var pmax = minmaxes[3];
+  var lmin = minmaxes[4]; var lmax = minmaxes[5];
+  px = px - cx; px=px/side_length
+  py = py - cy; py=py/side_length
+
+  var i = i_val
+  var p = (-5/4 * (px-i*4/5))
+  var l = (py+i*1.2 - px*3/4)
+  if ((imin<=i && i<=imax) && (pmin<=p && p<=pmax) && (lmin<=l && l<=lmax)){        return [i,p,l]    }
+
+  return undefined
+}
+
+//For the given point px, py, return the (surface) political orientation, for p_surface
+//returns [i,p,l]: individualism, progressivism, libertarianism
+function rightside_point_to_compass_orientation(px,py, p_val=0, minmaxes=[0,1,0,1,0,1]){
+  var imin = minmaxes[0]; var imax = minmaxes[1];
+  var pmin = minmaxes[2]; var pmax = minmaxes[3];
+  var lmin = minmaxes[4]; var lmax = minmaxes[5];
+  px = px - cx; px=px/side_length
+  py = py - cy; py=py/side_length
+
+  var p = p_val
+  var i = (5/4 * (px+p*4/5))
+  var l = (py+p*1.2 + px*3/4)
+  if ((imin<=i && i<=imax) && (pmin<=p && p<=pmax) && (lmin<=l && l<=lmax)){        return [i,p,l]    }
+
+  return undefined
+}
+
+  //For the given point px, py, return the (surface) political orientation, for l_surface
+  //returns [i,p,l]: individualism, progressivism, libertarianism
+function topside_point_to_compass_orientation(px,py, l_val=0, minmaxes=[0,1,0,1,0,1]){
+  var imin = minmaxes[0]; var imax = minmaxes[1];
+  var pmin = minmaxes[2]; var pmax = minmaxes[3];
+  var lmin = minmaxes[4]; var lmax = minmaxes[5];
+  px = px - cx; px=px/side_length
+  py = py - cy; py=py/side_length
+
+  var l = l_val
+  var i = ( px*5/4 - (py-l_val)*5/3) / (2.0)
+  var p = (-px*5/4 - (py-l_val)*5/3) / (2.0)
+  if ((imin<=i && i<=imax) && (pmin<=p && p<=pmax) && (lmin<=l && l<=lmax)){        return [i,p,l]    }
+
+}
+
+
+
+
+  //////////////////////////////////////////////////////////////////////////
+  /////// HTML SUPPORT BS ///////
+
+function toggle_visible(elem_id){
+  var elem = document.getElementById(elem_id)
+  if (elem.style.display=="none"){
+    elem.style.display = "block"
+  } else {
+    elem.style.display = "none"
+  }
+}
+
+function on_subdivisions_input(){
+  var subs_input = document.getElementById("subs_in")
+  var newsubs = Math.floor(subs_input.value) //if we get bad input, the function should just stop executing here
+
+  if (newsubs>0){
+    subdivisions = newsubs
+	var i_slider = document.getElementById("ind_slider"); i_slider.max=subdivisions-1; i_slider.value = Math.round((subdivisions-1)/2)
+	var p_slider = document.getElementById("pro_slider"); p_slider.max=subdivisions-1; p_slider.value = Math.round((subdivisions-1)/2)
+	var l_slider = document.getElementById("lib_slider"); l_slider.max=subdivisions-1; l_slider.value = Math.round((subdivisions-1)/2)
+    reset_ranges()
+    draw_compass()
+  }
+}
+
+function reset_ranges(){
+  //reset the HTML elements
+  $( "#slider-range_i" ).slider({
+    range: true,
+    min: 0,
+    max: subdivisions,
+    values: [ 0, subdivisions ]
+  });
+  $( "#slider-range_p" ).slider({
+    range: true,
+    min: 0,
+    max: subdivisions,
+    values: [ 0, subdivisions ]
+  });
+  $( "#slider-range_l" ).slider({
+    range: true,
+    min: 0,
+    max: subdivisions,
+    values: [ 0, subdivisions ]
+  });
+
+  //reset the code variables
+  i_s=0 //Individualist start
+  i_e=1 //ind. end
+  p_s=0//progressive start
+  p_e=1 //progressive end
+  l_s=0 //Libertarian start
+  l_e=1 //Libertarian end
+}
+
+
+function resizeCanvasToDisplaySize(canvas) {
+   // look up the size the canvas is being displayed
+   const width = canvas.clientWidth;
+   const height = canvas.clientHeight;
+   // If it's resolution does not match change it
+   if (canvas.width !== width || canvas.height !== height) {
+     canvas.width = width;
+     canvas.height = height;
+     return true;
+   }
+   return false;
+}
+
+function toggle_pointer_button(){
+	var btn = document.getElementById("PointerButton")
+	if (btn.textContent == "Change to Red Dot"){
+		btn.textContent="Change to Cutout"
+		cutout_pointer = false
+	} else {
+		btn.textContent = "Change to Red Dot"
+		cutout_pointer = true
+	}
+	draw_compass()
+}
+
+//stolen from here: https://jqueryui.com/slider/#range
+$( function() {
+   $( "#slider-range_i" ).slider({
+     range: true,
+     min: 0,
+     max: subdivisions,
+     values: [ 0, subdivisions ],
+     slide: function( event, ui ) {
+       i_s = ui.values[ 0 ]/subdivisions;
+       i_e = ui.values[ 1 ]/subdivisions;
+       draw_compass()
+     }
+   });
+   $( "#amount_i" ).val( "0.0 - 1.0" );
+ } );
+
+ $( function() {
+    $( "#slider-range_p" ).slider({
+      range: true,
+      min: 0,
+      max: subdivisions,
+      values: [ 0, subdivisions ],
+      slide: function( event, ui ) {
+        p_s = ui.values[ 0 ]/subdivisions;
+        p_e = ui.values[ 1 ]/subdivisions;
+        draw_compass()
+      }
+    });
+    $( "#amount_p" ).val( "0.0 - 1.0" );
+  } );
+
+
+ $( function() {
+    $( "#slider-range_l" ).slider({
+      range: true,
+      min: 0,
+      max: subdivisions,
+      values: [ 0, subdivisions ],
+      slide: function( event, ui ) {
+        l_s = ui.values[ 0 ]/subdivisions;
+        l_e = ui.values[ 1 ]/subdivisions;
+        draw_compass()
+      }
+    });
+    $( "#amount_l" ).val( "0.0 - 1.0" );
+  } );
+
+
+//make sure the canvas has the right number of pixelsui.values[ 0 ]/subdivisions
+var c = document.getElementById("cube_canvas")
+resizeCanvasToDisplaySize(c)
+
+draw_compass()
+
+  </script>
+</body>
+</html>
